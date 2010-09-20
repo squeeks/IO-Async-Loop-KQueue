@@ -10,9 +10,12 @@ WriteMakefile(
     ($ExtUtils::MakeMaker::VERSION >= 6.3002
       ? ('LICENSE'=> 'perl')
       : ()),
-    PL_FILES            => {},
     PREREQ_PM => {
-        'Test::More' => 0,
+        'Test::More'           => 0,
+	'IO::Async'            => '0.24',
+	'IO::Async::LoopTests' => '0.24',
+	'IO::KQueue'           => '0.24'
+
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'IO-Async-Loop-KQueue-*' },
