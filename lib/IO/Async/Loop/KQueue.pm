@@ -5,6 +5,8 @@ use warnings;
 use Carp;
 
 use IO::KQueue;
+use POSIX qw( EINTR SIG_BLOCK SIG_UNBLOCK sigprocmask );
+
 use base qw( IO::Async::Loop );
 
 use constant API_VERSION => '0.24';
@@ -78,6 +80,40 @@ sub unwatch_io
 	$self->__unwatch_io( %params );
 
 	#TODO: GOTTA DO MORE HACKING HERE
+}
+
+sub watch_signal
+{
+   my $self = shift;
+   my ( $signal, $code ) = @_;
+
+   exists $SIG{$signal} or croak "Unrecognised signal name $signal";
+
+   $self->{restore_SIG}->{$signal} = $SIG{$signal};
+
+   my $signum = $self->signame2num( $signal );
+
+   sigprocmask( SIG_BLOCK, POSIX::SigSet->new( $signum ) );
+
+   $SIG{$signal} = $code;
+}
+
+sub unwatch_signal
+{
+   my $self = shift;
+   my ( $signal ) = @_;
+
+   exists $SIG{$signal} or croak "Unrecognised signal name $signal";
+
+   # When we saved the original value, we might have got an undef. But %SIG
+   # doesn't like having undef assigned back in, so we need to translate
+   $SIG{$signal} = $self->{restore_SIG}->{$signal} || 'DEFAULT';
+
+   delete $self->{restore_SIG}->{$signal};
+   
+   my $signum = $self->signame2num( $signal );
+
+   sigprocmask( SIG_UNBLOCK, POSIX::SigSet->new( $signum ) );
 }
 
 =head1 AUTHOR
