@@ -70,6 +70,16 @@ sub watch_io
 	
 }
 
+sub unwatch_io
+{
+	my $self = shift;
+	my %params = @_;
+
+	$self->__unwatch_io( %params );
+
+	#TODO: GOTTA DO MORE HACKING HERE
+}
+
 =head1 AUTHOR
 
 Squeeks, C<< <squeek at cpan.org> >>
