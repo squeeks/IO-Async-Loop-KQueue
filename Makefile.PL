@@ -12,8 +12,8 @@ WriteMakefile(
       : ()),
     PREREQ_PM => {
         'Test::More'           => 0,
-	'IO::Async'            => '0.24',
-	'IO::Async::LoopTests' => '0.24',
+	'IO::Async'            => 0,
+	'IO::Async::LoopTests' => 0,
 	'IO::KQueue'           => '0.24'
 
     },
