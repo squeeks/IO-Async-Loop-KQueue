@@ -52,6 +52,43 @@ sub new
 	return $self;
 }
 
+=head2 $count = $loop->lop_once( $timeout )
+
+This method calls the kevent method, using the given timeout and processes 
+the results of that call. It returns the total number of C<IO::Async::Notifier> 
+callbacks invoked, or C<undef> if the underlying C<epoll_pwait()> method 
+returned an error. If the C<epoll_pwait()> was interrupted by a signal, 
+then 0 is returned instead.
+
+=cut
+
+sub loop_once
+{
+	my $self = shift;
+	my ( $timeout ) = @_;
+
+	$self->_adjust_timeout( \$timeout );
+
+	my $msec = defined $timeout ? $timeout * 1000 : -1;
+
+	my $ret = $self->{kqueue}->kevent($msec);
+
+	return undef if !$ret;             # Some other error
+
+	my $count = 0;
+
+	foreach my $ev ( @$ret )
+	{
+		my $watch = $iowatches->{ $ev->{KQ_IDENT} };
+
+		$count++;
+	}
+
+	$count += $self->_manage_queues;
+
+	return $count;
+}
+
 # Overrides
 sub watch_io
 {
