@@ -79,6 +79,7 @@ sub loop_once
 	return undef if !$ret;             # Some other error
 
 	my $count = 0;
+	my $iowatches = $self->{iowatches};
 
 	foreach my $ev ( @$ret )
 	{
