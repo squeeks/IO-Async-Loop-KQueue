@@ -12,7 +12,7 @@ use constant API_VERSION => '0.24';
 
 =head1 NAME
 
-L<IO::Async::Loop::KQueue> - use C<IO::Async> with C<kqueue>
+IO::Async::Loop::KQueue - use C<IO::Async> with C<kqueue>
 
 =head1 VERSION
 
@@ -23,6 +23,9 @@ Version 0.01
 our $VERSION = '0.01';
 
 =head1 SYNOPSIS
+
+Like L<IO::Async::Loop::Epoll> for Linux, This module provides native loop management for
+BSD like operating systems that have KQueue present, using C<IO::KQueue>.
 
     use IO::Async::Loop::KQueue;
     
