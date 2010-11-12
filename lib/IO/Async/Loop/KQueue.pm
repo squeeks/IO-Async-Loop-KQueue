@@ -76,16 +76,14 @@ sub loop_once
 
 	my @events = $self->{kqueue}->kevent($msec);
 
-	return undef if !@events;
-
 	my $count = 0;
-	my $iowatches = $self->{iowatches};
+	local $self->{cancellations} = \my %cancellations;
 
 	foreach my $ev ( @events )
 	{
-		my $udata = $ev->[KQ_UDATA];
+		next if $cancellations{$ev->[KQ_FILTER]."/".$ev->[KQ_IDENT]};
 
-		$udata->();
+		$ev->[KQ_UDATA]->();
 
 		$count++;
 	}
@@ -128,10 +126,12 @@ sub unwatch_io
 	# because it wasn't there
 	if( $params{on_read_ready} ) {
 		eval { $kqueue->EV_SET($fd, EVFILT_READ, EV_DELETE) };
+		$self->{cancellations}{EVFILT_READ."/$fd"}++ if $self->{cancellations};
 	}
 
 	if( $params{on_write_ready} ) {
 		eval { $kqueue->EV_SET($fd, EVFILT_WRITE, EV_DELETE) };
+		$self->{cancellations}{EVFILT_WRITE."/$fd"}++ if $self->{cancellations};
 	}
 }
 
