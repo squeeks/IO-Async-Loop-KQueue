@@ -74,16 +74,18 @@ sub loop_once
 
 	my $msec = defined $timeout ? $timeout * 1000 : -1;
 
-	my $ret = $self->{kqueue}->kevent($msec);
+	my @events = $self->{kqueue}->kevent($msec);
 
-	return undef if !$ret;             # Some other error
+	return undef if !@events;
 
 	my $count = 0;
 	my $iowatches = $self->{iowatches};
 
-	foreach my $ev ( @$ret )
+	foreach my $ev ( @events )
 	{
-		my $watch = $iowatches->{ $ev->{KQ_IDENT} };
+		my $udata = $ev->[KQ_UDATA];
+
+		$udata->();
 
 		$count++;
 	}
@@ -93,18 +95,23 @@ sub loop_once
 	return $count;
 }
 
-# Overrides
 sub watch_io
 {
 	my $self = shift;
 	my %params = @_;
 
-	$self->__watch_io( %params );
+	my $kqueue = $self->{kqueue};
 
 	my $handle = $params{handle};
 	my $fd = $handle->fileno;
 
-	$self->{kqueue}->EV_SET($fd, EVFILT_READ, EV_ADD);
+	if( my $cb = $params{on_read_ready} ) {
+	       	$kqueue->EV_SET($fd, EVFILT_READ, EV_ADD, 0, 0, $cb);
+	}
+
+	if( my $cb = $params{on_write_ready} ) {
+		$kqueue->EV_SET($fd, EVFILT_WRITE, EV_ADD, 0, 0, $cb);
+	}
 }
 
 sub unwatch_io
@@ -112,12 +119,20 @@ sub unwatch_io
 	my $self = shift;
 	my %params = @_;
 
-	$self->__unwatch_io( %params );
+	my $kqueue = $self->{kqueue};
 
 	my $handle = $params{handle};
 	my $fd = $handle->fileno;
 
-	$self->{kqueue}->EV_SET($fd, EVFILT_READ, EV_DELETE);
+	# Just ignore errors from EV_SET; doesn't matter if we fail to delete
+	# because it wasn't there
+	if( $params{on_read_ready} ) {
+		eval { $kqueue->EV_SET($fd, EVFILT_READ, EV_DELETE) };
+	}
+
+	if( $params{on_write_ready} ) {
+		eval { $kqueue->EV_SET($fd, EVFILT_WRITE, EV_DELETE) };
+	}
 }
 
 =head1 AUTHOR
