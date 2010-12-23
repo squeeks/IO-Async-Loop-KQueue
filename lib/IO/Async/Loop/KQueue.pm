@@ -55,7 +55,7 @@ sub new
 	return $self;
 }
 
-=head2 $count = $loop->lop_once( $timeout )
+=head2 $count = $loop->loop_once( $timeout )
 
 This method calls the kevent method, using the given timeout and processes 
 the results of that call. It returns the total number of C<IO::Async::Notifier> 
@@ -176,7 +176,7 @@ L<http://search.cpan.org/dist/IO-Async-Loop-KQueue/>
 
 =head1 ACKNOWLEDGEMENTS
 
-Paul Evans (LeoNerd) for convincing me on IRC to do this.
+Paul Evans (LeoNerd) for doing all the hard work. 
 
 =head1 LICENSE AND COPYRIGHT
 
