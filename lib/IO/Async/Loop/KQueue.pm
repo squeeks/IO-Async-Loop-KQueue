@@ -16,11 +16,7 @@ IO::Async::Loop::KQueue - use C<IO::Async> with C<kqueue>
 
 =head1 VERSION
 
-Version 0.01
-
-=cut
-
-our $VERSION = '0.01';
+Version 0.02
 
 =head1 SYNOPSIS
 
