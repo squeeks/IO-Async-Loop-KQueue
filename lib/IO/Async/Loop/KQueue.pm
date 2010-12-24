@@ -8,7 +8,7 @@ use IO::KQueue;
 
 use base qw( IO::Async::Loop );
 
-use constant API_VERSION => '0.24';
+use constant API_VERSION => '0.33';
 
 =head1 NAME
 
