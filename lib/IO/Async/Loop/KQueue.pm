@@ -59,9 +59,7 @@ sub new
 
 This method calls the kevent method, using the given timeout and processes 
 the results of that call. It returns the total number of C<IO::Async::Notifier> 
-callbacks invoked, or C<undef> if the underlying C<epoll_pwait()> method 
-returned an error. If the C<epoll_pwait()> was interrupted by a signal, 
-then 0 is returned instead.
+callbacks invoked.
 
 =cut
 
